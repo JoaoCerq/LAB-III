@@ -1,26 +1,21 @@
-import soundfile as sf
-from pedalboard import Pedalboard, Reverb
+import numpy as np
 from pedalboard.io import AudioFile
 
-# Lê o arquivo de áudio
-with AudioFile("entrada.wav", 'r') as f:
-    audio = f.read(f.frames)
-    sample_rate = f.samplerate
-
-# Cria um "board" com reverb
-board = Pedalboard([
-    Reverb(
-        room_size=0.3,   # ~sala pequena
-        dampening=0.5,
-        wet_level=0.25,  # quanto de reverb
-        dry_level=0.75,
-        width=0.9
-    )
-])
-
-# Aplica o efeito
-effected = board(audio, sample_rate)
-
-# Salva o resultado
-with AudioFile("saida_reverb_room.wav", 'w', sample_rate, effected.shape[0]) as f:
-    f.write(effected)
+coef = 0.55
+atraso = 200
+with AudioFile("LAB-III/audios/original.wav") as f:
+    audio = f.read(f.frames)[0]   # canal 0
+    sr = f.samplerate
+N = len(audio)
+resultado = np.zeros(N)
+buffer = np.zeros(atraso)
+pos = 0
+for n in range(N):
+    x = audio[n]
+    delayed = buffer[pos]
+    y = x + coef * delayed
+    resultado[n] = y
+    buffer[pos] = y
+    pos = (pos + 1) % atraso
+with AudioFile("saida_comb.wav", "w", sr, 1) as f:
+    f.write(resultado[np.newaxis, :])
