@@ -17,5 +17,5 @@ for n in range(N):
     resultado[n] = y
     buffer[pos] = y
     pos = (pos + 1) % atraso
-with AudioFile("saida_comb.wav", "w", sr, 1) as f:
+with AudioFile("LAB-III/Outputs/reverb_03.wav", "w", sr, 1) as f:
     f.write(resultado[np.newaxis, :])
